@@ -1,0 +1,66 @@
+local Players = game:GetService("Players")
+
+local function createEsp(player, character)
+ local head = character:WaitForChild("Head", 10)
+ local styleTag = player:WaitForChild("Style", 10)
+ local zoneTag = player:WaitForChild("Zone", 10)
+ 
+ if not head or not styleTag or not zoneTag then return end
+ 
+ local oldEsp = head:FindFirstChild("ESP")
+ if oldEsp then oldEsp:Destroy() end
+
+ local billboard = Instance.new("BillboardGui")
+ billboard.Name = "ESP"
+
+ billboard.Size = UDim2.new(4, 0, 1.5, 0) 
+ billboard.StudsOffset = Vector3.new(0, 3.5, 0)
+ billboard.AlwaysOnTop = true
+ billboard.Parent = head
+
+ local container = Instance.new("Frame")
+ container.Size = UDim2.new(1, 0, 1, 0)
+ container.BackgroundTransparency = 1
+ container.Parent = billboard
+
+ local layout = Instance.new("UIListLayout")
+ layout.SortOrder = Enum.SortOrder.LayoutOrder
+ layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+ layout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+ layout.Parent = container
+
+ local function createLabel(val, prefix, order, color)
+  local label = Instance.new("TextLabel")
+  label.Size = UDim2.new(1, 0, 0.45, 0)
+  label.BackgroundTransparency = 1
+  label.Text = prefix .. ": " .. tostring(val.Value)
+  label.TextColor3 = color
+  label.TextStrokeTransparency = 0
+  label.TextScaled = true
+  label.LayoutOrder = order
+  label.Parent = container
+  
+  val.Changed:Connect(function(newVal)
+   if label and label.Parent then
+    label.Text = prefix .. ": " .. tostring(newVal)
+   end
+  end)
+ end
+
+ createLabel(zoneTag, "Zone", 1, Color3.new(0.4, 0.8, 1))
+ createLabel(styleTag, "Style", 2, Color3.new(1, 1, 1))
+end
+
+local function setupPlayer(player)
+ player.CharacterAdded:Connect(function(character)
+  createEsp(player, character)
+ end)
+ if player.Character then
+  createEsp(player, player.Character)
+ end
+end
+
+Players.PlayerAdded:Connect(setupPlayer)
+for _, player in ipairs(Players:GetPlayers()) do
+ setupPlayer(player)
+end
