@@ -1,0 +1,7 @@
+local Event = game:GetService("ReplicatedStorage").Remotes.PetCageEvent
+
+for _, folder in ipairs(game:GetService("ReplicatedStorage").Pets:GetChildren()) do
+    for _, pet in ipairs(folder:GetChildren()) do
+        pcall(Event.FireServer, Event, pet.Name)
+    end
+end
